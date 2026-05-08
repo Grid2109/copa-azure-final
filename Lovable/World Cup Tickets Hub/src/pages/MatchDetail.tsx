@@ -204,13 +204,28 @@ const MatchDetail: React.FC = () => {
       confederation: match.away_team_confederation || '',
     } as unknown as TeamType;
 
+    // O selectedSector vem do array enriquecido com dados da API (ver `sectors` acima):
+    // ele carrega o ticketCategoryId real do banco, necessário para o POST /tickets/purchase.
+    const ticketCategoryId =
+      (selectedSector as unknown as { ticketCategoryId?: number }).ticketCategoryId ?? 0;
+
+    if (!ticketCategoryId) {
+      toast({
+        title: 'Erro ao processar setor',
+        description:
+          'Categoria de ingresso não disponível. Recarregue a página e tente novamente.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     addItem({
       match: matchForCart,
       stadium: stadiumForCart,
       homeTeam,
       awayTeam,
       sector: selectedSector as Sector,
-      ticketCategoryId: 0, // não-DB ticket; usamos sector estático local
+      ticketCategoryId,
       quantity,
       unitPrice: selectedSector.price,
     });
